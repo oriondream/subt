@@ -56,7 +56,16 @@ rf_power log_normal_received_power(const double& tx_power,
   }
 
   double PL = config.L0 + 10 * config.fading_exponent * log10(range);
-  
+
+  return {tx_power - PL, config.sigma};
+}
+
+/////////////////////////////////////////////
+rf_power visibility_only_received_power(const double& tx_power,
+                                        const rf_configuration& config)
+{
+  double PL = config.L0 + 10 * config.fading_exponent;
+
   return {tx_power - PL, config.sigma};
 }
 

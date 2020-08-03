@@ -73,20 +73,29 @@ rf_power VisibilityModel::ComputeReceivedPower(const double &_txPower,
   double visibilityCost = this->visibilityTable.Cost(_txState.pose.Pos(),
       _rxState.pose.Pos());
 
+  if (visibilityCost > this->visibilityConfig.commsCostMax)
+    return {-std::numeric_limits<double>::infinity(), 0.0};
+
   range_model::rf_configuration localConfig = this->defaultRangeConfig;
 
   // Augment fading exponent based on visibility cost
   localConfig.fading_exponent +=
   this->visibilityConfig.visibilityCostToFadingExponent * visibilityCost;
 
-  double range = _txState.pose.Pos().Distance(_rxState.pose.Pos());
+  // double range = _txState.pose.Pos().Distance(_rxState.pose.Pos());
 
-  rf_power rx = range_model::log_normal_received_power(_txPower,
-                                                       _txState,
-                                                       _rxState,
-                                                       localConfig);
-  igndbg << "Range: " << range << ", Exp: " << localConfig.fading_exponent
-    << ", TX: " << _txPower << ", RX: " << rx.mean << std::endl;
+  // rf_power rx = range_model::log_normal_received_power(_txPower,
+  //                                                      _txState,
+  //                                                      _rxState,
+  //                                                      localConfig);
+
+  // igndbg << "Range: " << range << ", Exp: " << localConfig.fading_exponent
+  //   << ", TX: " << _txPower << ", RX: " << rx.mean << std::endl;
+
+  rf_power rx = range_model::visibility_only_received_power(_txPower,
+                                                            localConfig);
+  igndbg << "Exp: " << localConfig.fading_exponent
+         << ", TX: " << _txPower << ", RX: " << rx.mean << std::endl;
 
   return std::move(rx);
 }
@@ -162,7 +171,7 @@ bool VisibilityModel::VisualizeVisibility(const ignition::msgs::StringMsg &_req,
     double cost = this->visibilityTable.Cost(from, to);
     if (cost <= this->visibilityConfig.commsCostMax)
     {
-    
+
       /// Calculations from subt_communication_model/src/subt_communication_model.cpp
       double txPower = 20.0; // Hardcoded from cave_circuit.ign
       double noise_floor = -90.0; // Hardcoded from cave_circuit.ign
@@ -178,7 +187,7 @@ bool VisibilityModel::VisualizeVisibility(const ignition::msgs::StringMsg &_req,
       // Scale packet drop probability to align with the color scheme
       int pdp = floor(packet_drop_prob*5.00001);
       ///
-  
+
       auto m = perCostMarkers.find(static_cast<int>(pdp));
 
       if (m == perCostMarkers.end())

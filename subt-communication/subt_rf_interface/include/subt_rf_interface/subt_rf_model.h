@@ -64,7 +64,7 @@ struct rf_configuration
 ///
 /// Compute the pathloss based on distance between two nodes and
 /// return the received power.
-/// 
+///
 /// @param tx_power Transmit power (dBm)
 /// @param tx_state Transmit state (pose)
 /// @param rx_state Receiver state (pose)
@@ -79,7 +79,7 @@ rf_power distance_based_received_power(const double& tx_power,
 /// Compute the pathloss based on distance between two nodes and
 /// return the received power. Vary return by drawing from normal
 /// distribution.
-/// 
+///
 /// @param tx_power Transmit power (dBm)
 /// @param tx_state Transmit state (pose)
 /// @param rx_state Receiver state (pose)
@@ -88,6 +88,17 @@ rf_power log_normal_received_power(const double& tx_power,
                                    radio_state& tx_state,
                                    radio_state& rx_state,
                                    const rf_configuration& config);
+
+/// Compute received power based on visibility information only.
+///
+/// Compute the pathloss based on the visibility cost between two nodes and
+/// return the received power.Vary return by drawing from normal
+/// distribution.
+///
+/// @param tx_power Transmit power (dBm)
+/// @param config Physical-layer configuration
+rf_power visibility_only_received_power(const double& tx_power,
+                                        const rf_configuration& config);
 }
 }
 }
